@@ -1,0 +1,127 @@
+Actions and filters
+
+– Remove sale image
+remove_action( ‘woocommerce_before_shop_loop_item_title’, ‘pi_show_product_loop_sale_flash’, 10 );
+remove_action( ‘woocommerce_before_single_product_summary’, pi_show_product_sale_flash’, 10 );
+
+– Remove pages from page menu
+
+add_filter( ‘get_pages’, ‘pi_remove_get_pages’ );
+function pi_remove_get_pages($items) {
+    $removedArr = array(“cart”, “checkout”, “my-account”);
+    foreach($items as $k=>$item) {
+        if(in_array($item->post_name, $removedArr)) {
+            unset($items[$k]);
+        }
+    }
+    return $items;
+}
+
+– Remove cross sale/related products.
+remove_action( ‘woocommerce_after_single_product_summary’, ‘woocommerce_output_related_products’, 20);
+
+– Hide/Show payment gateway based on country selection.
+
+add_filter( ‘woocommerce_available_payment_gateways’, ‘payment_gateway_disable_country’ );
+
+function payment_gateway_disable_country( $available_gateways ) {
+    global $woocommerce;
+    if ( isset( $available_gateways[‘ccavenue’] ) && $woocommerce->customer->get_country() <> ‘IN’ ) {
+        unset(  $available_gateways[‘ccavenue’] );
+    } else if ( isset( $available_gateways[‘paypal’] ) && $woocommerce->customer->get_country() == ‘IN’ ) {
+        unset( $available_gateways[‘paypal’] );
+    }
+    return $available_gateways;
+}
+
+– Showing result count only in search.
+
+function woocommerce_result_count() {
+    if(!is_search()) {
+        return;
+    } else {
+        wc_get_template( ‘loop/result-count.php’ );
+    }
+}
+
+– Custom function to display html based on custom fields
+
+add_action( ‘woocommerce_single_product_summary’, ‘pi_template_single_tp’, 9 );
+
+function woocommerce_template_single_tp() {
+    global $post;
+    $pi = get_post_meta( $post->ID, ‘field_type’, true );
+    if ( ! empty( $product_benefits ) ) {
+        //we can add more options here….
+        $allOption = array(‘bc’=>”Bc”, ‘ad’=>”Ad”);
+        $html = ‘Field Label’;
+        
+        foreach($allOption as $k=>$option) {
+                        $cls = ”;
+                             if($k == $pi) {
+                                      $cls = ‘active’;
+                              }
+                       $html .= $option;
+        }
+        echo $html;
+    }
+}
+
+– Add new tab for product page
+add_filter( ‘woocommerce_product_tabs’, ‘add_tab’);
+
+function add_tab($tabs) {
+    global $post;
+    if ( get_post_meta( $post->ID, ‘additional_content’, true ) ) {
+        $tab = array(‘title’=>’Additional Information’, ‘priority’=>60,
+        ‘callback’=>’pi_product_additional_content_tab’);
+        $tabs[‘additional_content’] = $tab;
+    }
+    //we can add more tabs here
+    return $tabs;
+}
+
+function pi_product_table_of_content_tab(){
+    global $post;
+    $pi = get_post_meta( $post->ID, ‘table_of_content’, true );
+    if ( ! empty( $pi ) ) {
+        echo ‘<h2>Table Of Content</h2>’;
+        echo apply_filters( ‘the_content’, $pi);
+    }
+}
+
+– Remove review tab
+add_filter( ‘woocommerce_product_tabs’, ‘remove_reviews_tab’, 98);
+function remove_reviews_tab($tabs) {
+    unset($tabs[‘reviews’]);
+
+    //we and remove more tab here
+    return $tabs;
+}
+
+–Add button with add to cart button on single product page
+
+add_action(‘woocommerce_after_add_to_cart_button’, ‘si_button’);
+function si_button() {
+    //we can make or include js file to process this button
+    echo ‘<span style=”margin-left:10px; float:left”><button type=”button” name=”PI” class=”button sRBtn”>Button Label</button></span>’;
+}
+
+-Add this social button
+add_action( ‘woocommerce_single_product_summary’,  ‘pi_template_single_addthis’, 10 );
+function pi_template_single_addthis() {
+?>
+    var addthis_config = {
+    pubid: “xyz…”//change pubid here
+    }
+    PrintPrint |
+    EmailEmail |
+    ShareShare
+    http://s7.addthis.com/js/250/addthis_widget.js
+<?php }
+
+– Remove WooCommerce Native Breadcrumb
+add_action( ‘init’, ‘pi_remove_wc_breadcrumbs’ );
+function pi_remove_wc_breadcrumbs() {
+    remove_action( ‘woocommerce_before_main_content’, ‘woocommerce_breadcrumb’, 20, 0 );
+}
