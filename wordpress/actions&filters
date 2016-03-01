@@ -111,14 +111,24 @@ function si_button() {
 add_action( ‘woocommerce_single_product_summary’,  ‘pi_template_single_addthis’, 10 );
 function pi_template_single_addthis() {
 ?>
-    var addthis_config = {
-    pubid: “xyz…”//change pubid here
-    }
-    PrintPrint |
-    EmailEmail |
-    ShareShare
-    http://s7.addthis.com/js/250/addthis_widget.js
-<?php }
+<!-- ADDTHIS BUTTON BEGIN -->
+<script type="text/javascript">
+var addthis_config = {
+     pubid: "pubid",
+	service_custom : {name:'Sharing'}
+}
+</script>
+
+<div class="addthis_toolbox addthis_default_style addthis_16x16_style shareBtn" >
+    <a class="addthis_button_print"><img src="http://s7.addthis.com/static/btn/sm-plus.gif" width="0" height="0" border="0" alt="Print" />Print</a> | 
+    <a class="addthis_button_email"><img src="http://s7.addthis.com/static/btn/sm-plus.gif" width="0" height="0" border="0" alt="Email" />Email</a> | 
+	<a class="addthis_button_compact" ><img src="http://s7.addthis.com/static/btn/sm-plus.gif" width="0" height="0" border="0" alt="Share" />Share</a>
+    
+</div>
+<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js"></script>
+<!-- ADDTHIS BUTTON END -->
+?>
+}
 
 – Remove WooCommerce Native Breadcrumb
 add_action( ‘init’, ‘pi_remove_wc_breadcrumbs’ );
